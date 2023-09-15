@@ -52,33 +52,92 @@ public class CircularBuffer {
 		}
 	}
 
-	public boolean equals(byte[] arr) {
-		if (size != arr.length) {
+	/**
+	 * A simple search that tests to see if the buffer contents equal a given array,
+	 * starting at the head position of the buffer.
+	 * @param arr Search query.
+	 * @return Whether the query is an exact match.
+	 */
+	public boolean query(byte[] arr) {
+		if (size < arr.length) {
 			return false;
 		}
-		Node n = head;
+		return query(arr, head);
+	}
+
+
+	/**
+	 * A simple search that tests to see if the entire buffer contents equal a given array,
+	 * starting at the given position of the array.
+	 * @param arr Search query.
+	 * @param start The node position in the array to start checking.
+	 * @return Whether the query is an exact match.
+	 */
+	public boolean query(byte[] arr, Node start) {
+		Node n = start;
 		for (byte b : arr) {
 			if (n.b != b) {
 				return false;
 			}
 			n = n.next;
+			//checking if the pointer is at the head again. There isn't supposed to be wrap-around, so return false.
+			if (n == head) {
+				return false;
+			}
 		}
 		return true;
 	}
 
-	//support for query arrays that may have wildcards
-	public boolean equals(Byte[] arr) {
-		if (size != arr.length) {
-			return false;
-		}
+	/**
+	 * Returns whether the buffer contains the given section1 sequence starting at the head position,
+	 * followed some bytes in the middle (this section is minWildcard to maxWildcard in length),
+	 * and then finally ending with the 'section2' sequence of the query.
+	 * @param section1 The starting sequence of the search query.
+	 * @param minWildcards Number of wildcard bytes in the middle.
+	 * @param maxWildcards Number of wildcard bytes in the middle.
+	 * @param section2 The ending sequence of the search query.
+	 * @return Search result.
+	 */
+	public boolean headTail1Query(byte[] section1, int minWildcards, int maxWildcards, byte[] section2) {
 		Node n = head;
-		for (Byte b : arr) {
-			if (b!= null && n.b != b) {
+		for (byte b : section1) {
+			if (n.b != b) {
 				return false;
 			}
 			n = n.next;
+			//checking if the pointer is at the head again. There isn't supposed to be wrap-around, so return false.
+			if (n == head) {
+				return false;
+			}
 		}
-		return true;
+
+		//skipping minWildcard nodes
+		Node section2Start = n;
+		for (int i = 0; i < minWildcards; i++) {
+			n = n.next;
+		}
+
+		//trying to match the remaining section, with an additional 0 to (maxWildcards - minWildcards) in between
+		boolean match = true;
+		for (int i = 0; i < maxWildcards - minWildcards; i++) {
+			//moving the head one step at the start of the second loop onwards
+			if (i != 0) {
+				section2Start = section2Start.next;
+			}
+
+			n = section2Start;
+			for (byte b : section2) {
+				if (n.b != b) {
+					match = false;
+					break;
+				}
+			}
+
+			if (match) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//copy whatever was in the buffer into a byte[]
@@ -94,6 +153,7 @@ public class CircularBuffer {
 
 	//dump the contents of the buffer.
 	//to be used when replacing the search query match with something else.
+	@SuppressWarnings("unused")
 	public void flush() {
 		size = 0;
 		head = null;
