@@ -2,6 +2,7 @@ import util.Converter;
 import util.PatchHelper;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Test {
@@ -15,8 +16,15 @@ public class Test {
 	private static final byte[] SECTION2_ARRAY = Converter.stringToData(SECTION2);
 
 	public static void main(String[] args) {
+		Random random = new Random(5);
+		byte[] bArr = new byte[10];
+		random.nextBytes(bArr);
+		System.out.println(Arrays.toString(bArr));
+
 		writeFile();
+		writeHeadTailSequence();
 		PatchHelper.readFile(FILE, ARRAY_A);
+		PatchHelper.readHeadTailFile(FILE, SECTION1_ARRAY, 0, 20, SECTION2_ARRAY);
 	}
 
 	@SuppressWarnings("unused")

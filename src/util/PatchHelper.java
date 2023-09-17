@@ -35,7 +35,7 @@ public class PatchHelper {
 	}
 
 
-	@SuppressWarnings("InfiniteLoopStatement")
+	@SuppressWarnings({"InfiniteLoopStatement", "unused"})
 	public static void readHeadTailFile(File file, byte[] section1, int minWildcards, int maxWildcards, byte[] section2) {
 		try(FileInputStream fileIn = new FileInputStream(file);
 			DataInputStream dataIn = new DataInputStream(fileIn)){

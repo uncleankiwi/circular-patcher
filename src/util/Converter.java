@@ -5,36 +5,39 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Converter {
-	private static Map<Character, Byte> hexToByteMap;
-	private static Map<Byte, Character> byteToHexMap;
+	private static Map<Character, Byte> hexToHalfByteMap;
+	private static Map<Byte, Character> halfByteToHexMap;
 
 	public static void main(String[] args) {
-		byte[] data = stringToData("0001FFb");
+		byte[] data = stringToData("0001FFb8");
+		System.out.println(Arrays.toString(data));
+		System.out.println(dataToString(data));
+		data = stringToData("c113");
 		System.out.println(Arrays.toString(data));
 		System.out.println(dataToString(data));
 	}
 
-	private static Map<Character, Byte> getHexToByteMap() {
-		if (hexToByteMap == null) {
-			hexToByteMap = new HashMap<>();
+	private static Map<Character, Byte> getHexToHalfByteMap() {
+		if (hexToHalfByteMap == null) {
+			hexToHalfByteMap = new HashMap<>();
 			for (int i = 0; i <= 9; i++) {
-				hexToByteMap.put((char) (i + '0'), (byte) i);
+				hexToHalfByteMap.put((char) (i + '0'), (byte) i);
 			}
 			for (int i = 0; i <= 5; i++) {
-				hexToByteMap.put((char) (i + 'a'), (byte) (i + 10));
+				hexToHalfByteMap.put((char) (i + 'a'), (byte) (i + 10));
 			}
 		}
-		return hexToByteMap;
+		return hexToHalfByteMap;
 	}
 
-	private static Map<Byte, Character> getBytetoHexMap() {
-		if (byteToHexMap == null) {
-			byteToHexMap = new HashMap<>();
-			for (Map.Entry<Character, Byte> entry : getHexToByteMap().entrySet()) {
-				byteToHexMap.put(entry.getValue(), entry.getKey());
+	private static Map<Byte, Character> getHalfBytetoHexMap() {
+		if (halfByteToHexMap == null) {
+			halfByteToHexMap = new HashMap<>();
+			for (Map.Entry<Character, Byte> entry : getHexToHalfByteMap().entrySet()) {
+				halfByteToHexMap.put(entry.getValue(), entry.getKey());
 			}
 		}
-		return byteToHexMap;
+		return halfByteToHexMap;
 	}
 
 	public static byte[] stringToData(String bitString) {
@@ -43,29 +46,60 @@ public class Converter {
 				.toCharArray();
 		int length = 0;
 		for (char c : bitStringArr) {
-			if (getHexToByteMap().containsKey(c)) {
+			if (getHexToHalfByteMap().containsKey(c)) {
 				length++;
 			}
 		}
-		byte[] data = new byte[length];
 
+		//make sure there the length is an even number, as two characters make a byte
+		if (length % 2 != 0) {
+			throw new RuntimeException("Expected an even number of letters in byte string. Given length: " + length);
+		}
+		byte[] data = new byte[length / 2];
+
+		boolean left = true;	//reading the left part of the byte first
 		for (int inIndex = 0, outIndex = 0; inIndex < length; inIndex++) {
 			char c = bitStringArr[inIndex];
-			if (getHexToByteMap().containsKey(c)) {
-				data[outIndex] = getHexToByteMap().get(c);
-				outIndex++;
+			if (getHexToHalfByteMap().containsKey(c)) {
+				byte val = getHexToHalfByteMap().get(c);
+				if (left) {
+					data[outIndex] = (byte) (val << 4);
+
+				}
+				else {
+					data[outIndex] += val;
+					outIndex++;
+				}
+				left = !left;
 			}
 		}
 		return data;
 	}
 
+	@SuppressWarnings("GrazieInspection")
 	public static String dataToString(byte[] data) {
 		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < data.length; i++) {
-			if (i % 2 == 0 && i != 0) {
+		for (int i = 0; i < data.length; i++)
+		{
+			if (i != 0) {
 				builder.append(' ');
 			}
-			builder.append(getBytetoHexMap().get(data[i]));
+			char right = getHalfBytetoHexMap().get((byte) (data[i] & 15));
+
+			/* Note that we cannot simply use data[i] >> 4 to get the left part.
+			Byte data type cannot be bit-shifted, so it gets implicitly cast into int.
+			However, when the value of the byte is ff (or -1), that get casted into
+			-1 in int, which is ff ff ff ff.
+			When the bit shift is performed with that, we end up with 00 ff ff ff...
+			which is cast into byte, resulting in ff ff (-1) again.
+			That will fetch a null from the map (because there's no such key),
+			and which will then cause a null pointer exception to be thrown when
+			attempting to assign it to the char variable.
+			 */
+			char left = getHalfBytetoHexMap().get((byte) (data[i] >> 4 & 15));
+			builder.append(left)
+					.append(right);
+
 		}
 		return builder.toString();
 	}

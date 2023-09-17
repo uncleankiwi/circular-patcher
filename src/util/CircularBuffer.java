@@ -118,8 +118,9 @@ public class CircularBuffer {
 		}
 
 		//trying to match the remaining section, with an additional 0 to (maxWildcards - minWildcards) in between
-		boolean match = true;
+		boolean match;
 		for (int i = 0; i < maxWildcards - minWildcards; i++) {
+			match = true;
 			//moving the head one step at the start of the second loop onwards
 			if (i != 0) {
 				section2Start = section2Start.next;
@@ -131,6 +132,7 @@ public class CircularBuffer {
 					match = false;
 					break;
 				}
+				n = n.next;
 			}
 
 			if (match) {
