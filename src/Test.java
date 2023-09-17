@@ -21,6 +21,7 @@ public class Test {
 		random.nextBytes(bArr);
 		System.out.println(Arrays.toString(bArr));
 
+		clearFile();
 		writeFile();
 		writeHeadTailSequence();
 		PatchHelper.readFile(FILE, ARRAY_A);
@@ -55,7 +56,7 @@ public class Test {
 	@SuppressWarnings("unused")
 	private static void writeHeadTailSequence() {
 
-		try(FileOutputStream fileOut = new FileOutputStream(FILE, false);
+		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
 			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
 
 
@@ -90,7 +91,7 @@ public class Test {
 	}
 
 	private static void writeFile() {
-		try(FileOutputStream fileOut = new FileOutputStream(FILE, false);
+		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
 			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
 
 			Random random = new Random(3);
@@ -100,6 +101,16 @@ public class Test {
 			dataOut.write(ARRAY_A);
 			dataOut.write(ARRAY_A);
 			writeRandomSegment(dataOut, random, 121);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void clearFile() {
+		try {
+			FileOutputStream fileOut = new FileOutputStream(FILE, false);
+			fileOut.close();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
