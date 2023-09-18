@@ -5,10 +5,17 @@ import util.PatchHelper;
 import java.io.*;
 import java.util.Random;
 
+@SuppressWarnings("unused")
 public class Test {
 	private static final File FILE = new File("C:\\Zips\\test\\io.dat");
-	private static final String STRING_A = "ff 90 1d 53 a0";	//ff 90 1d 53 a0
+	private static final File FILE_AFTER = new File("C:\\Zips\\test\\io_after.dat");
+	private static final String STRING_A = "ff 90 1d 53 a0";
 	private static final byte[] ARRAY_A = Converter.stringToData(STRING_A);
+
+	private static final byte[] B_1 = Converter.stringToData("ff 33 10 53 a0");
+	private static final byte[] B_2 = Converter.stringToData("ff 22 01 53 a0");
+	private static final Byte[] B_FIND = Converter.wildcardStringToData("ff ?? ?? 53 a0");
+	private static final Byte[] B_REPLACE = Converter.wildcardStringToData("ff ?? ?? dd 0e");
 
 	private static final String SECTION1 = "00 01 02 03 ee";
 	private static final String SECTION2 = "ff 90 1d 53 a0";
@@ -16,11 +23,27 @@ public class Test {
 	private static final byte[] SECTION2_ARRAY = Converter.stringToData(SECTION2);
 
 	public static void main(String[] args) {
-		clearFile();
-		writeFile();
-		writeHeadTailSequence();
-		PatchHelper.find(FILE, ARRAY_A);
-		PatchHelper.findHeadTail(FILE, SECTION1_ARRAY, 0, 20, SECTION2_ARRAY);
+		findTester();
+	}
+
+	@SuppressWarnings("unused")
+	private static void findTester() {
+		clearFile(FILE);
+		clearFile(FILE_AFTER);
+		writeReplacer();
+		System.out.println("=========Original file: before=========");
+		PatchHelper.findWithWildcard(FILE, B_FIND);
+		System.out.println("File length: " + FILE.length());
+		System.out.println("=========REPLACING=========");
+		PatchHelper.replaceWithWildcard(FILE, FILE_AFTER, B_FIND, B_REPLACE);
+		System.out.println("File length: " + FILE.length());
+		System.out.println("=========Original file: after=========");
+		PatchHelper.findWithWildcard(FILE, B_FIND);
+		System.out.println("File length: " + FILE.length());
+		System.out.println("=========Modified file: after=========");
+		PatchHelper.findWithWildcard(FILE_AFTER, B_FIND);
+		PatchHelper.findWithWildcard(FILE_AFTER, B_REPLACE);
+		System.out.println("File length: " + FILE_AFTER.length());
 	}
 
 	@SuppressWarnings("unused")
@@ -96,6 +119,25 @@ public class Test {
 		}
 	}
 
+
+	@SuppressWarnings("unused")
+	private static void writeReplacer() {
+		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
+			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
+
+			Random random = new Random(3);
+			writeRandomSegment(dataOut, random, 10);
+			dataOut.write(B_1);
+			writeRandomSegment(dataOut, random, 7);
+			dataOut.write(B_2);
+			dataOut.write(B_1);
+			writeRandomSegment(dataOut, random, 3);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	//writes a segment of 'length' random bytes to the data output
 	private static void writeRandomSegment(BufferedOutputStream dataOut, Random random, int length) throws IOException {
 		byte[] arr = new byte[length];
@@ -157,19 +199,19 @@ public class Test {
 			Random random = new Random(3);
 			writeRandomSegment(dataOut, random, 100);
 			dataOut.write(ARRAY_A);
-			writeRandomSegment(dataOut, random, 53);
+			writeRandomSegment(dataOut, random, 37);
 			dataOut.write(ARRAY_A);
 			dataOut.write(ARRAY_A);
-			writeRandomSegment(dataOut, random, 121);
+			writeRandomSegment(dataOut, random, 120);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void clearFile() {
+	private static void clearFile(File file) {
 		try {
-			FileOutputStream fileOut = new FileOutputStream(FILE, false);
+			FileOutputStream fileOut = new FileOutputStream(file, false);
 			fileOut.close();
 		}
 		catch(Exception e) {
