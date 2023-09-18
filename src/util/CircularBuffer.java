@@ -28,6 +28,7 @@ public class CircularBuffer {
 		}
 	}
 
+
 	/*
 	If it is empty, set first as head and tail and write to it.
 	If it isn't empty, write to tail's next. If the new tail is head, set head as head's next.
@@ -48,6 +49,33 @@ public class CircularBuffer {
 				head = head.next;
 			}
 		}
+	}
+
+
+	/*
+	An alternate version of push.
+	When the buffer written to while it is already full, the oldest byte is returned.
+	When not full, pushAndReturn() will return a null.
+	 */
+	public Byte pushAndReturn(byte b) {
+		Byte result = null;
+		if (size < maxSize) {
+			size++;
+		}
+		if (head == null) {
+			head = first;
+			tail = first;
+			first.b = b;
+		}
+		else {
+			tail = tail.next;
+			if (tail == head) {
+				result = head.b;
+				head = head.next;
+			}
+			tail.b = b;
+		}
+		return result;
 	}
 
 	/**
@@ -164,7 +192,7 @@ public class CircularBuffer {
 	//dump the contents of the buffer.
 	//to be used when replacing the search query match with something else.
 	@SuppressWarnings("unused")
-	public void dump() {
+	public void clear() {
 		size = 0;
 		head = null;
 		tail = null;

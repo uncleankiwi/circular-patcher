@@ -19,8 +19,8 @@ public class Test {
 		clearFile();
 		writeFile();
 		writeHeadTailSequence();
-		PatchHelper.readFile(FILE, ARRAY_A);
-		PatchHelper.readHeadTailFile(FILE, SECTION1_ARRAY, 0, 20, SECTION2_ARRAY);
+		PatchHelper.find(FILE, ARRAY_A);
+		PatchHelper.findHeadTail(FILE, SECTION1_ARRAY, 0, 20, SECTION2_ARRAY);
 	}
 
 	@SuppressWarnings("unused")
