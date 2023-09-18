@@ -17,14 +17,10 @@ public class Test {
 
 	public static void main(String[] args) {
 		clearFile();
-//		writeRange();
-//		readRange();
-//		writeFile();
 		writeFile();
-//		writeHeadTailSequence();
+		writeHeadTailSequence();
 		PatchHelper.readFile(FILE, ARRAY_A);
-//		PatchHelper.readFile(FILE, getArr());
-//		PatchHelper.readHeadTailFile(FILE, SECTION1_ARRAY, 0, 20, SECTION2_ARRAY);
+		PatchHelper.readHeadTailFile(FILE, SECTION1_ARRAY, 0, 20, SECTION2_ARRAY);
 	}
 
 	@SuppressWarnings("unused")

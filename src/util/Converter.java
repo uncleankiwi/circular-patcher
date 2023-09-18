@@ -9,12 +9,16 @@ public class Converter {
 	private static Map<Byte, Character> halfByteToHexMap;
 
 	public static void main(String[] args) {
-		byte[] data = stringToData("0001FFb8");
-		System.out.println(Arrays.toString(data));
-		System.out.println(dataToString(data));
-		data = stringToData("00010203121212ff");
-		System.out.println(Arrays.toString(data));
-		System.out.println(dataToString(data));
+		test("1d 53 a0 a0 a0 a0");
+		test("0001FFb8");
+		test("00010203121212ff");
+		test("ff 90 1d 53 a0");
+	}
+
+	private static void test(String s) {
+		byte[] data = stringToData(s);
+		System.out.println("byte[]:" + Arrays.toString(data));
+		System.out.println("String:" + dataToString(data));
 	}
 
 	private static Map<Character, Byte> getHexToHalfByteMap() {
@@ -56,19 +60,18 @@ public class Converter {
 			throw new RuntimeException("Expected an even number of letters in byte string. Given length: " + length);
 		}
 		byte[] data = new byte[length / 2];
-
+		int i = 0;
 		boolean left = true;	//reading the left part of the byte first
-		for (int inIndex = 0, outIndex = 0; inIndex < length; inIndex++) {
-			char c = bitStringArr[inIndex];
+		for (char c : bitStringArr) {
 			if (getHexToHalfByteMap().containsKey(c)) {
 				byte val = getHexToHalfByteMap().get(c);
 				if (left) {
-					data[outIndex] = (byte) (val << 4);
+					data[i] = (byte) (val << 4);
 
 				}
 				else {
-					data[outIndex] += val;
-					outIndex++;
+					data[i] += val;
+					i++;
 				}
 				left = !left;
 			}

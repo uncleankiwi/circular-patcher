@@ -65,26 +65,19 @@ public class CircularBuffer {
 
 
 	/**
-	 * A simple search that tests to see if the entire buffer contents equal a given array,
+	 * A simple search that tests to see if the buffer contents equal a given array,
 	 * starting at the given position of the array.
 	 * @param arr Search query.
 	 * @param start The node position in the array to start checking.
-	 * @return Whether the query is an exact match.
+	 * @return Whether the query is a match.
 	 */
 	public boolean query(byte[] arr, Node start) {
 		Node n = start;
-		for (int i = 0; i < arr.length; i++) {
-			if (i != 0) {
-				n = n.next;
-				//checking if the pointer is at the head again. There isn't supposed to be wrap-around, so return false.
-				if (n == head) {
-					return false;
-				}
-			}
-			if (n.b != arr[i]) {
+		for (byte b : arr) {
+			if (b != n.b) {
 				return false;
 			}
-
+			n = n.next;
 		}
 		return true;
 	}
