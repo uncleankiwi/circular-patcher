@@ -28,8 +28,8 @@ public class Test {
 
 	@SuppressWarnings("unused")
 	private static void findTester() {
-		clearFile(FILE);
-		clearFile(FILE_AFTER);
+		PatchHelper.clearFile(FILE);
+		PatchHelper.clearFile(FILE_AFTER);
 		writeReplacer();
 		System.out.println("=========Original file: before=========");
 		PatchHelper.findWithWildcard(FILE, B_FIND);
@@ -208,15 +208,4 @@ public class Test {
 			e.printStackTrace();
 		}
 	}
-
-	private static void clearFile(File file) {
-		try {
-			FileOutputStream fileOut = new FileOutputStream(file, false);
-			fileOut.close();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 }

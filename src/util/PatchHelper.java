@@ -128,4 +128,14 @@ public class PatchHelper {
 			e.printStackTrace();
 		}
 	}
+
+	public static void clearFile(File file) {
+		try {
+			FileOutputStream fileOut = new FileOutputStream(file, false);
+			fileOut.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
