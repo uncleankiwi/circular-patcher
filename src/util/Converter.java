@@ -7,6 +7,7 @@ import java.util.Map;
 public class Converter {
 	private static Map<Character, Byte> hexToHalfByteMap;
 	private static Map<Byte, Character> halfByteToHexMap;
+	private static final char WILDCARD = '?';
 
 	public static void main(String[] args) {
 		test("1d 53 a0 a0 a0 a0");
@@ -71,6 +72,60 @@ public class Converter {
 				}
 				else {
 					data[i] += val;
+					i++;
+				}
+				left = !left;
+			}
+		}
+		return data;
+	}
+
+	public static Byte[] wildcardStringToData(String bitString) {
+		char[] bitStringArr = bitString
+				.toLowerCase()
+				.toCharArray();
+		int length = 0;
+		for (char c : bitStringArr) {
+			if (getHexToHalfByteMap().containsKey(c) || c == WILDCARD) {
+				length++;
+			}
+		}
+
+		//make sure there the length is an even number, as two characters make a byte
+		if (length % 2 != 0) {
+			throw new RuntimeException("Expected an even number of letters in byte string. Given length: " + length);
+		}
+		Byte[] data = new Byte[length / 2];
+		int i = 0;
+		boolean left = true;	//reading the left part of the byte first
+		for (char c : bitStringArr) {
+			if (getHexToHalfByteMap().containsKey(c)) {
+				byte val = getHexToHalfByteMap().get(c);
+				if (left) {
+					data[i] = (byte) (val << 4);
+
+				}
+				else {
+					if (data[i] != null) {
+						data[i] = (byte) (data[i] + val);
+					}
+					else {
+						throw new RuntimeException("The right half of a byte cannot be a non-wildcard if the left half is a wildcard");
+					}
+
+					i++;
+				}
+				left = !left;
+			}
+			else if (c == WILDCARD) {
+				if (left) {
+					data[i] = null;
+
+				}
+				else {
+					if (data[i] != null) {
+						throw new RuntimeException("The right half of a byte cannot be a wildcard if the left half is a non-wildcard");
+					}
 					i++;
 				}
 				left = !left;

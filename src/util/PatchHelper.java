@@ -34,6 +34,31 @@ public class PatchHelper {
 		}
 	}
 
+	@SuppressWarnings("InfiniteLoopStatement")
+	public static void readFileWithWildcards(File file, Byte[] arr) {
+		try(FileInputStream fileIn = new FileInputStream(file);
+			DataInputStream dataIn = new DataInputStream(fileIn)){
+
+			long i = 0;
+			CircularBuffer buffer = new CircularBuffer(arr.length);
+			try {
+				while(true) {
+					buffer.push(dataIn.readByte());
+					i++;
+					if (buffer.queryWithWildcards(arr)) {
+						System.out.println(i + ": " + Converter.dataToString(buffer.contents()));
+					}
+				}
+			}
+			catch (EOFException e){
+				System.out.println("End of file");
+			}
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	@SuppressWarnings({"InfiniteLoopStatement", "unused"})
 	public static void readHeadTailFile(File file, byte[] section1, int minWildcards, int maxWildcards, byte[] section2) {

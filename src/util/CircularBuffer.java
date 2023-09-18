@@ -133,6 +133,23 @@ public class CircularBuffer {
 		return false;
 	}
 
+	/**
+	 * A simple search that tests to see if the buffer contents equal a given array,
+	 * starting at the given position of the array.
+	 * @param arr Search query.
+	 * @return Whether the query is a match.
+	 */
+	public boolean queryWithWildcards(Byte[] arr) {
+		Node n = head;
+		for (Byte b : arr) {
+			if (b != null && b != n.b) {
+				return false;
+			}
+			n = n.next;
+		}
+		return true;
+	}
+
 	//copy whatever was in the buffer into a byte[]
 	public byte[] contents() {
 		byte[] arr = new byte[size];
