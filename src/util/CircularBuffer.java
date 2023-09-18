@@ -1,7 +1,5 @@
 package util;
 
-import java.util.Objects;
-
 public class CircularBuffer {
 	private Node first;		//becomes the head when the buffer is empty
 	private Node head;
@@ -75,15 +73,18 @@ public class CircularBuffer {
 	 */
 	public boolean query(byte[] arr, Node start) {
 		Node n = start;
-		for (byte b : arr) {
-			if (n.b != b) {
+		for (int i = 0; i < arr.length; i++) {
+			if (i != 0) {
+				n = n.next;
+				//checking if the pointer is at the head again. There isn't supposed to be wrap-around, so return false.
+				if (n == head) {
+					return false;
+				}
+			}
+			if (n.b != arr[i]) {
 				return false;
 			}
-			n = n.next;
-			//checking if the pointer is at the head again. There isn't supposed to be wrap-around, so return false.
-			if (n == head) {
-				return false;
-			}
+
 		}
 		return true;
 	}
@@ -100,15 +101,12 @@ public class CircularBuffer {
 	 */
 	public boolean headTail1Query(byte[] section1, int minWildcards, int maxWildcards, byte[] section2) {
 		Node n = head;
-		for (byte b : section1) {
-			if (n.b != b) {
+		for (byte value : section1) {
+			if (n.b != value) {
 				return false;
 			}
+
 			n = n.next;
-			//checking if the pointer is at the head again. There isn't supposed to be wrap-around, so return false.
-			if (n == head) {
-				return false;
-			}
 		}
 
 		//skipping minWildcard nodes
@@ -156,7 +154,7 @@ public class CircularBuffer {
 	//dump the contents of the buffer.
 	//to be used when replacing the search query match with something else.
 	@SuppressWarnings("unused")
-	public void flush() {
+	public void dump() {
 		size = 0;
 		head = null;
 		tail = null;
@@ -170,18 +168,5 @@ public class CircularBuffer {
 	private static class Node {
 		Node next;
 		byte b;
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-			Node node = (Node) o;
-			return this.b == node.b;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(b);
-		}
 	}
 }

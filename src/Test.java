@@ -1,31 +1,30 @@
+import util.CircularBuffer;
 import util.Converter;
 import util.PatchHelper;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Random;
 
 public class Test {
 	private static final File FILE = new File("C:\\Zips\\test\\io.dat");
-	private static final String STRING_A = "ff 90 1d 53 a0";
+	private static final String STRING_A = "ff 90 1d 53 a0";	//ff 90 1d 53 a0
 	private static final byte[] ARRAY_A = Converter.stringToData(STRING_A);
 
-	private static final String SECTION1 = "00 01 02 03";
-	private static final String SECTION2 = "ee ef f0 f1";
+	private static final String SECTION1 = "00 01 02 03 ee";
+	private static final String SECTION2 = "ff 90 1d 53 a0";
 	private static final byte[] SECTION1_ARRAY = Converter.stringToData(SECTION1);
 	private static final byte[] SECTION2_ARRAY = Converter.stringToData(SECTION2);
 
 	public static void main(String[] args) {
-		Random random = new Random(5);
-		byte[] bArr = new byte[10];
-		random.nextBytes(bArr);
-		System.out.println(Arrays.toString(bArr));
-
 		clearFile();
+//		writeRange();
+//		readRange();
+//		writeFile();
 		writeFile();
-		writeHeadTailSequence();
+//		writeHeadTailSequence();
 		PatchHelper.readFile(FILE, ARRAY_A);
-		PatchHelper.readHeadTailFile(FILE, SECTION1_ARRAY, 0, 20, SECTION2_ARRAY);
+//		PatchHelper.readFile(FILE, getArr());
+//		PatchHelper.readHeadTailFile(FILE, SECTION1_ARRAY, 0, 20, SECTION2_ARRAY);
 	}
 
 	@SuppressWarnings("unused")
@@ -45,6 +44,24 @@ public class Test {
 			}
 			catch (EOFException e){
 				System.out.println("Sum of integers in file: " + sum);
+			}
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private static void readBytes(File file) {
+		try(FileInputStream fileIn = new FileInputStream(FILE);
+			DataInputStream dataIn = new DataInputStream(fileIn)){
+			try {
+				while(true)
+					System.out.println(dataIn.readByte());
+			}
+			catch (EOFException e){
+				System.out.println("EOF");
 			}
 
 		}
@@ -90,6 +107,53 @@ public class Test {
 		dataOut.write(arr);
 	}
 
+	//writes a sequence of 00-ff bytes
+	private static byte[] getArr() {
+		byte[] b = new byte[256];
+		for (int i = 0; i < 256; i++) {
+			b[i] = (byte) i;
+		}
+		return b;
+	}
+
+	@SuppressWarnings("unused")
+	private static void writeRange() {
+		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
+			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
+			dataOut.write(getArr());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings({"unused"})
+	private static void readRange() {
+		try(FileInputStream fileIn = new FileInputStream(FILE);
+			DataInputStream dataIn = new DataInputStream(fileIn)){
+
+			long i = 0;
+			CircularBuffer buffer = new CircularBuffer(256);
+			try {
+				while(true) {
+					buffer.push(dataIn.readByte());
+					i++;
+					if (buffer.query(getArr())) {
+						System.out.println(i + ": " + Converter.dataToString(buffer.contents()));
+					}
+				}
+			}
+			catch (EOFException e){
+				System.out.println("End of file");
+			}
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unused")
 	private static void writeFile() {
 		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
 			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){

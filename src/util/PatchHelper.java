@@ -8,7 +8,7 @@ import java.io.FileInputStream;
 
 public class PatchHelper {
 
-	@SuppressWarnings("InfiniteLoopStatement")
+	@SuppressWarnings({"InfiniteLoopStatement", "unused"})
 	public static void readFile(File file, byte[] arr) {
 		try(FileInputStream fileIn = new FileInputStream(file);
 			DataInputStream dataIn = new DataInputStream(fileIn)){

@@ -12,7 +12,7 @@ public class Converter {
 		byte[] data = stringToData("0001FFb8");
 		System.out.println(Arrays.toString(data));
 		System.out.println(dataToString(data));
-		data = stringToData("c113");
+		data = stringToData("00010203121212ff");
 		System.out.println(Arrays.toString(data));
 		System.out.println(dataToString(data));
 	}
