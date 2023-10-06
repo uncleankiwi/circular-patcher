@@ -161,4 +161,26 @@ public class Converter {
 		}
 		return builder.toString();
 	}
+
+	//a version for data strings with wildcards (i.e. null values)
+	public static String dataToString(Byte[] data) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < data.length; i++)
+		{
+			if (i != 0) {
+				builder.append(' ');
+			}
+			Byte num = data[i];
+			if (num == null) {
+				builder.append("??");
+			}
+			else {
+				char right = getHalfBytetoHexMap().get((byte) (num & 15));
+				char left = getHalfBytetoHexMap().get((byte) (num >> 4 & 15));
+				builder.append(left)
+						.append(right);
+			}
+		}
+		return builder.toString();
+	}
 }

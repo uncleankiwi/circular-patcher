@@ -1,5 +1,7 @@
 package util;
 
+import util.trie.BulkQuery;
+
 public class CircularBuffer {
 	private Node first;		//becomes the head when the buffer is empty
 	private Node head;
@@ -173,6 +175,19 @@ public class CircularBuffer {
 			if (b != null && b != n.b) {
 				return false;
 			}
+			n = n.next;
+		}
+		return true;
+	}
+
+	/*
+	For
+	 */
+	public boolean bulkQueryWithWildcards(BulkQuery bulkQuery) {
+		Node n = head;
+		bulkQuery.reset();
+		while (bulkQuery.hasNext()) {
+			bulkQuery.pushQuery(n.b);
 			n = n.next;
 		}
 		return true;
