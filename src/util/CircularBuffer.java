@@ -1,7 +1,5 @@
 package util;
 
-import util.trie.BulkQuery;
-
 public class CircularBuffer {
 	private Node first;		//becomes the head when the buffer is empty
 	private Node head;
@@ -55,135 +53,10 @@ public class CircularBuffer {
 
 
 	/*
-	An alternate version of push.
-	When the buffer written to while it is already full, the oldest byte is returned.
-	When not full, pushAndReturn() will return a null.
+	Gives the trie in the bulkQuery the contents in the window until no more are requested
+	(because there are no more possible branches that match or a leaf has been reached).
 	 */
-	public Byte pushAndReturn(byte b) {
-		Byte result = null;
-		if (size < maxSize) {
-			size++;
-		}
-		if (head == null) {
-			head = first;
-			tail = first;
-			first.b = b;
-		}
-		else {
-			tail = tail.next;
-			if (tail == head) {
-				result = head.b;
-				head = head.next;
-			}
-			tail.b = b;
-		}
-		return result;
-	}
-
-	/**
-	 * A simple search that tests to see if the buffer contents equal a given array,
-	 * starting at the head position of the buffer.
-	 * @param arr Search query.
-	 * @return Whether the query is an exact match.
-	 */
-	public boolean query(byte[] arr) {
-		if (size < arr.length) {
-			return false;
-		}
-		return query(arr, head);
-	}
-
-
-	/**
-	 * A simple search that tests to see if the buffer contents equal a given array,
-	 * starting at the given position of the array.
-	 * @param arr Search query.
-	 * @param start The node position in the array to start checking.
-	 * @return Whether the query is a match.
-	 */
-	public boolean query(byte[] arr, Node start) {
-		Node n = start;
-		for (byte b : arr) {
-			if (b != n.b) {
-				return false;
-			}
-			n = n.next;
-		}
-		return true;
-	}
-
-	/**
-	 * Returns whether the buffer contains the given section1 sequence starting at the head position,
-	 * followed some bytes in the middle (this section is minWildcard to maxWildcard in length),
-	 * and then finally ending with the 'section2' sequence of the query.
-	 * @param section1 The starting sequence of the search query.
-	 * @param minWildcards Number of wildcard bytes in the middle.
-	 * @param maxWildcards Number of wildcard bytes in the middle.
-	 * @param section2 The ending sequence of the search query.
-	 * @return Search result.
-	 */
-	public boolean headTail1Query(byte[] section1, int minWildcards, int maxWildcards, byte[] section2) {
-		Node n = head;
-		for (byte value : section1) {
-			if (n.b != value) {
-				return false;
-			}
-
-			n = n.next;
-		}
-
-		//skipping minWildcard nodes
-		Node section2Start = n;
-		for (int i = 0; i < minWildcards; i++) {
-			n = n.next;
-		}
-
-		//trying to match the remaining section, with an additional 0 to (maxWildcards - minWildcards) in between
-		boolean match;
-		for (int i = 0; i < maxWildcards - minWildcards; i++) {
-			match = true;
-			//moving the head one step at the start of the second loop onwards
-			if (i != 0) {
-				section2Start = section2Start.next;
-			}
-
-			n = section2Start;
-			for (byte b : section2) {
-				if (n.b != b) {
-					match = false;
-					break;
-				}
-				n = n.next;
-			}
-
-			if (match) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * A simple search that tests to see if the buffer contents equal a given array,
-	 * starting at the given position of the array.
-	 * @param arr Search query.
-	 * @return Whether the query is a match.
-	 */
-	public boolean queryWithWildcards(Byte[] arr) {
-		Node n = head;
-		for (Byte b : arr) {
-			if (b != null && b != n.b) {
-				return false;
-			}
-			n = n.next;
-		}
-		return true;
-	}
-
-	/*
-	For
-	 */
-	public boolean bulkQueryWithWildcards(BulkQuery bulkQuery) {
+	public void bulkQueryWithWildcards(BulkQuery bulkQuery) {
 		bulkQuery.setBuffer(this);
 		Node n = head;
 		bulkQuery.reset();
@@ -191,7 +64,6 @@ public class CircularBuffer {
 			bulkQuery.pushQuery(n.b);
 			n = n.next;
 		}
-		return true;
 	}
 
 	//copy whatever was in the buffer into a byte[]

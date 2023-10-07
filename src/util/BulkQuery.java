@@ -1,6 +1,4 @@
-package util.trie;
-
-import util.CircularBuffer;
+package util;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +21,7 @@ Requirements:
 		the sequence encountered and the offset are noted.
 
  */
-public class BulkQuery {
+class BulkQuery {
 	private final Trie head;
 	//stores all sequences encountered, will be iterated through and printed after search
 	private final Set<Sequence> sequences;
@@ -55,7 +53,7 @@ public class BulkQuery {
 	//for every Trie in current set, put their downstream Tries into nextSet
 	public void pushQuery(byte b) {
 		for (Trie trie : currentSet) {
-			nextSet.addAll(trie.pushQuery(b, offset));
+			nextSet.addAll(trie.pushQuery(b));
 		}
 		Set<Trie> temp = currentSet;
 		currentSet = nextSet;
@@ -74,7 +72,7 @@ public class BulkQuery {
 		return this.offset;
 	}
 
-	public void add(String description, Byte[] query) {
+	void add(String description, Byte[] query) {
 		Sequence sequence = new Sequence(description, query);
 		sequences.add(sequence);
 		head.populate(sequence, 0);

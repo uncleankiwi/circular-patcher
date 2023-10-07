@@ -1,4 +1,4 @@
-package util.trie;
+package util;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,16 +10,16 @@ class Trie {
 	private final Map<Byte, Set<Trie>> map;		//contains all non-wildcard nodes
 	private Sequence sequence;					//stores a sequence IF this is the leaf for that sequence
 	private final Set<Trie> resultSet;			//created once and reused
-	private final BulkQuery wrapper;
+	private final BulkQuery bulkQuery;
 
-	Trie(BulkQuery wrapper) {
+	Trie(BulkQuery bulkQuery) {
 		map = new HashMap<>();
 		resultSet = new HashSet<>();
-		this.wrapper = wrapper;
+		this.bulkQuery = bulkQuery;
 	}
 
 	//get all children that match this byte
-	Set<Trie> pushQuery(byte b, long offset) {
+	Set<Trie> pushQuery(byte b) {
 		resultSet.clear();
 		if (wildcard != null) {
 			resultSet.add(wildcard);
@@ -32,7 +32,7 @@ class Trie {
 		for (Trie child : resultSet) {
 			if (child.sequence != null) {
 				//todo entire sequence + offset number is put in. could modify this.
-				child.sequence.getResults().add(new Result(wrapper.getOffset(), wrapper.buffer.contents()));
+				child.sequence.getResults().add(new Result(bulkQuery.getOffset(), bulkQuery.buffer.contents()));
 			}
 		}
 
@@ -42,7 +42,7 @@ class Trie {
 	//insert the given Sequence's sequence as a child, starting at the offset element
 	void populate(Sequence sequence, int offset) {
 		Byte b = sequence.getQuery()[offset];
-		Trie child = new Trie(this.wrapper);
+		Trie child = new Trie(this.bulkQuery);
 		if (b == null) {
 			this.wildcard = child;
 		}

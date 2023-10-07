@@ -1,6 +1,4 @@
-package util.trie;
-
-import util.Converter;
+package util;
 
 import java.util.ArrayList;
 import java.util.List;

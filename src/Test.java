@@ -1,7 +1,5 @@
-import util.CircularBuffer;
+import util.BulkPatchHelper;
 import util.Converter;
-import util.PatchHelper;
-import util.trie.BulkQuery;
 
 import java.io.*;
 import java.util.Random;
@@ -29,130 +27,23 @@ public class Test {
 
 	@SuppressWarnings("unused")
 	private static void bulkFindTester() {
-		PatchHelper.clearFile(FILE);
+		BulkPatchHelper.clearFile(FILE);
 		Byte[] a = Converter.wildcardStringToData("aa bb cc");
 		Byte[] b2 = Converter.wildcardStringToData("ff bb cc");
 		Byte[] b1 = Converter.wildcardStringToData("ff bb cc 00");
 		Byte[] ab = Converter.wildcardStringToData("?? bb cc");
 		Byte[] c = Converter.wildcardStringToData("11 22 33 44 55");
-		BulkQuery bulkQuery = new BulkQuery();
-		bulkQuery.add("a", a);
-		bulkQuery.add("b1", b1);
-		bulkQuery.add("b2", b2);
-		bulkQuery.add("ab", ab);
-		bulkQuery.add("c", c);
-	}
-
-	@SuppressWarnings("unused")
-	private static void findTester() {
-		PatchHelper.clearFile(FILE);
-		PatchHelper.clearFile(FILE_AFTER);
-		writeReplacer();
-		System.out.println("=========Original file: before=========");
-		PatchHelper.findWithWildcard(FILE, B_FIND);
-		System.out.println("File length: " + FILE.length());
-		System.out.println("=========REPLACING=========");
-		PatchHelper.replaceWithWildcard(FILE, FILE_AFTER, B_FIND, B_REPLACE);
-		System.out.println("File length: " + FILE.length());
-		System.out.println("=========Original file: after=========");
-		PatchHelper.findWithWildcard(FILE, B_FIND);
-		System.out.println("File length: " + FILE.length());
-		System.out.println("=========Modified file: after=========");
-		PatchHelper.findWithWildcard(FILE_AFTER, B_FIND);
-		PatchHelper.findWithWildcard(FILE_AFTER, B_REPLACE);
-		System.out.println("File length: " + FILE_AFTER.length());
-	}
-
-	@SuppressWarnings("unused")
-	private static void misc() {
-		try(FileOutputStream fileOut = new FileOutputStream(FILE, false);
-			FileInputStream fileIn = new FileInputStream(FILE);
-			DataOutputStream dataOut = new DataOutputStream(fileOut);
-			DataInputStream dataIn = new DataInputStream(fileIn)){
-
-			for (int i = 1; i <= 100; i++) {
-				dataOut.writeInt((int)(Math.random() * 256 * 256));
-			}
-			int sum = 0;
-			try {
-				while(true)
-					sum += dataIn.readInt();
-			}
-			catch (EOFException e){
-				System.out.println("Sum of integers in file: " + sum);
-			}
-
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private static void readBytes(File file) {
-		try(FileInputStream fileIn = new FileInputStream(FILE);
-			DataInputStream dataIn = new DataInputStream(fileIn)){
-			try {
-				while(true)
-					System.out.println(dataIn.readByte());
-			}
-			catch (EOFException e){
-				System.out.println("EOF");
-			}
-
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private static void writeHeadTailSequence() {
-
-		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
-			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
 
 
-			//100 random, section1, 10 bytes, section2, 120 random,
-			//section1, 50 random, section2, 100 random, section1, 5 bytes, section2, 200 random
-			Random random = new Random(3);
-
-			writeRandomSegment(dataOut, random, 100);
-			dataOut.write(SECTION1_ARRAY);
-			writeRandomSegment(dataOut, random, 10);
-			dataOut.write(SECTION2_ARRAY);
-			writeRandomSegment(dataOut, random, 120);
-			dataOut.write(SECTION1_ARRAY);
-			writeRandomSegment(dataOut, random, 50);
-			dataOut.write(SECTION2_ARRAY);
-			writeRandomSegment(dataOut, random, 100);
-			dataOut.write(SECTION1_ARRAY);
-			writeRandomSegment(dataOut, random, 5);
-			dataOut.write(SECTION2_ARRAY);
-			writeRandomSegment(dataOut, random, 200);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	@SuppressWarnings("unused")
-	private static void writeReplacer() {
-		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
-			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
-
-			Random random = new Random(3);
-			writeRandomSegment(dataOut, random, 10);
-			dataOut.write(B_1);
-			writeRandomSegment(dataOut, random, 7);
-			dataOut.write(B_2);
-			dataOut.write(B_1);
-			writeRandomSegment(dataOut, random, 3);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
+		BulkPatchHelper bulkPatchHelper = new BulkPatchHelper();
+		bulkPatchHelper.setFileIn(FILE);
+		bulkPatchHelper.addQuery("a", a);
+		bulkPatchHelper.addQuery("b1", b1);
+		bulkPatchHelper.addQuery("b2", b2);
+		bulkPatchHelper.addQuery("ab", ab);
+		bulkPatchHelper.addQuery("c", c);
+		bulkPatchHelper.run();
+		bulkPatchHelper.printResults();
 	}
 
 	//writes a segment of 'length' random bytes to the data output
@@ -162,53 +53,6 @@ public class Test {
 		dataOut.write(arr);
 	}
 
-	//writes a sequence of 00-ff bytes
-	private static byte[] getArr() {
-		byte[] b = new byte[256];
-		for (int i = 0; i < 256; i++) {
-			b[i] = (byte) i;
-		}
-		return b;
-	}
-
-	@SuppressWarnings("unused")
-	private static void writeRange() {
-		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
-			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
-			dataOut.write(getArr());
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings({"unused"})
-	private static void readRange() {
-		try(FileInputStream fileIn = new FileInputStream(FILE);
-			DataInputStream dataIn = new DataInputStream(fileIn)){
-
-			long i = 0;
-			CircularBuffer buffer = new CircularBuffer(256);
-			try {
-				while(true) {
-					buffer.push(dataIn.readByte());
-					i++;
-					if (buffer.query(getArr())) {
-						System.out.println(i + ": " + Converter.dataToString(buffer.contents()));
-					}
-				}
-			}
-			catch (EOFException e){
-				System.out.println("End of file");
-			}
-
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings("unused")
 	private static void writeFile() {
 		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
 			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){

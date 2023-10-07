@@ -1,6 +1,4 @@
-package util.trie;
-
-import util.Converter;
+package util;
 
 public class Result {
 	public final long offset;
