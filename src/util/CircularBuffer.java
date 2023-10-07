@@ -184,6 +184,7 @@ public class CircularBuffer {
 	For
 	 */
 	public boolean bulkQueryWithWildcards(BulkQuery bulkQuery) {
+		bulkQuery.setBuffer(this);
 		Node n = head;
 		bulkQuery.reset();
 		while (bulkQuery.hasNext()) {

@@ -30,15 +30,22 @@ public class BulkQuery {
 	private Set<Trie> currentSet;
 	private Set<Trie> nextSet;
 	private long offset;
-	final CircularBuffer buffer;
+	CircularBuffer buffer;
 
-	public BulkQuery(CircularBuffer buffer) {
-		this.buffer = buffer;
+	public BulkQuery() {
 		head = new Trie(this);
 		currentSet = new HashSet<>();
 		nextSet = new HashSet<>();
 		sequences = new HashSet<>();
 		offset = 0;
+	}
+
+	public Set<Sequence> getSequences() {
+		return this.sequences;
+	}
+
+	public void setBuffer(CircularBuffer buffer) {
+		this.buffer = buffer;
 	}
 
 	public boolean hasNext() {
@@ -67,7 +74,7 @@ public class BulkQuery {
 		return this.offset;
 	}
 
-	void addQuery(String description, Byte[] query) {
+	public void add(String description, Byte[] query) {
 		Sequence sequence = new Sequence(description, query);
 		sequences.add(sequence);
 		head.populate(sequence, 0);

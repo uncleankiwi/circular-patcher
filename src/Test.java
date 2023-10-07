@@ -1,6 +1,7 @@
 import util.CircularBuffer;
 import util.Converter;
 import util.PatchHelper;
+import util.trie.BulkQuery;
 
 import java.io.*;
 import java.util.Random;
@@ -23,7 +24,23 @@ public class Test {
 	private static final byte[] SECTION2_ARRAY = Converter.stringToData(SECTION2);
 
 	public static void main(String[] args) {
-		findTester();
+		bulkFindTester();
+	}
+
+	@SuppressWarnings("unused")
+	private static void bulkFindTester() {
+		PatchHelper.clearFile(FILE);
+		Byte[] a = Converter.wildcardStringToData("aa bb cc");
+		Byte[] b2 = Converter.wildcardStringToData("ff bb cc");
+		Byte[] b1 = Converter.wildcardStringToData("ff bb cc 00");
+		Byte[] ab = Converter.wildcardStringToData("?? bb cc");
+		Byte[] c = Converter.wildcardStringToData("11 22 33 44 55");
+		BulkQuery bulkQuery = new BulkQuery();
+		bulkQuery.add("a", a);
+		bulkQuery.add("b1", b1);
+		bulkQuery.add("b2", b2);
+		bulkQuery.add("ab", ab);
+		bulkQuery.add("c", c);
 	}
 
 	@SuppressWarnings("unused")
