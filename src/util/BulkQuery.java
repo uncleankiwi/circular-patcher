@@ -27,7 +27,6 @@ class BulkQuery {
 	private final Set<Sequence> sequences;
 	private Set<Trie> currentSet;
 	private Set<Trie> nextSet;
-	private long offset;
 	CircularBuffer buffer;
 
 	public BulkQuery() {
@@ -35,7 +34,6 @@ class BulkQuery {
 		currentSet = new HashSet<>();
 		nextSet = new HashSet<>();
 		sequences = new HashSet<>();
-		offset = 0;
 	}
 
 	public Set<Sequence> getSequences() {
@@ -63,13 +61,12 @@ class BulkQuery {
 
 	//resets the search, and sets the scope back to the heads of the Tries stored
 	public void reset() {
-		offset = 0;
 		currentSet.clear();
 		currentSet.add(head);
 	}
 
 	long getOffset() {
-		return this.offset;
+		return buffer.getOffset();
 	}
 
 	void add(String description, Byte[] query) {
@@ -80,7 +77,7 @@ class BulkQuery {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder("Bytes searched: " + offset);
+		StringBuilder builder = new StringBuilder("Bytes searched: " + getOffset());
 		for (Sequence sequence : sequences) {
 			builder.append("\n")
 					.append(sequence);

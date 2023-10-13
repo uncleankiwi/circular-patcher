@@ -67,6 +67,7 @@ public class BulkPatchHelper {
 		this.fileOut = file;
 	}
 
+	@SuppressWarnings("unused")
 	public static void clearFile(File file) {
 		try {
 			FileOutputStream fileOut = new FileOutputStream(file, false);

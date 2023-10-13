@@ -22,12 +22,17 @@ public class Sequence {
 		return results;
 	}
 
+	int length() {
+		return query.length;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder(description);
 		builder.append("[").append(Converter.dataToString(query)).append("]").append("\n");
 		for (Result result : results) {
-			builder.append(result);
+			builder.append(result)
+					.append("\n");
 		}
 		return builder.toString();
 	}

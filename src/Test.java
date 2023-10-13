@@ -4,44 +4,32 @@ import util.Converter;
 import java.io.*;
 import java.util.Random;
 
-@SuppressWarnings("unused")
 public class Test {
 	private static final File FILE = new File("C:\\Zips\\test\\io.dat");
 	private static final File FILE_AFTER = new File("C:\\Zips\\test\\io_after.dat");
-	private static final String STRING_A = "ff 90 1d 53 a0";
-	private static final byte[] ARRAY_A = Converter.stringToData(STRING_A);
 
-	private static final byte[] B_1 = Converter.stringToData("ff 33 10 53 a0");
-	private static final byte[] B_2 = Converter.stringToData("ff 22 01 53 a0");
-	private static final Byte[] B_FIND = Converter.wildcardStringToData("ff ?? ?? 53 a0");
-	private static final Byte[] B_REPLACE = Converter.wildcardStringToData("ff ?? ?? dd 0e");
-
-	private static final String SECTION1 = "00 01 02 03 ee";
-	private static final String SECTION2 = "ff 90 1d 53 a0";
-	private static final byte[] SECTION1_ARRAY = Converter.stringToData(SECTION1);
-	private static final byte[] SECTION2_ARRAY = Converter.stringToData(SECTION2);
+	private static final Byte[] A = Converter.wildcardStringToData("aa bb cc");
+	private static final Byte[] B1 = Converter.wildcardStringToData("ff bb cc 00");
+	private static final Byte[] B2 = Converter.wildcardStringToData("ff bb cc");
+	private static final Byte[] AB = Converter.wildcardStringToData("?? bb cc");
+	private static final Byte[] C = Converter.wildcardStringToData("11 22 33 44 55");
 
 	public static void main(String[] args) {
+//		BulkPatchHelper.clearFile(FILE);
+//		writeFile();
 		bulkFindTester();
 	}
 
 	@SuppressWarnings("unused")
 	private static void bulkFindTester() {
-		BulkPatchHelper.clearFile(FILE);
-		Byte[] a = Converter.wildcardStringToData("aa bb cc");
-		Byte[] b2 = Converter.wildcardStringToData("ff bb cc");
-		Byte[] b1 = Converter.wildcardStringToData("ff bb cc 00");
-		Byte[] ab = Converter.wildcardStringToData("?? bb cc");
-		Byte[] c = Converter.wildcardStringToData("11 22 33 44 55");
-
 
 		BulkPatchHelper bulkPatchHelper = new BulkPatchHelper();
 		bulkPatchHelper.setFileIn(FILE);
-		bulkPatchHelper.addQuery("a", a);
-		bulkPatchHelper.addQuery("b1", b1);
-		bulkPatchHelper.addQuery("b2", b2);
-		bulkPatchHelper.addQuery("ab", ab);
-		bulkPatchHelper.addQuery("c", c);
+		bulkPatchHelper.addQuery("a", A);
+		bulkPatchHelper.addQuery("b1", B1);
+		bulkPatchHelper.addQuery("b2", B2);
+		bulkPatchHelper.addQuery("ab", AB);
+		bulkPatchHelper.addQuery("c", C);
 		bulkPatchHelper.run();
 		bulkPatchHelper.printResults();
 	}
@@ -53,17 +41,45 @@ public class Test {
 		dataOut.write(arr);
 	}
 
+	private static void write(BufferedOutputStream dataOut, Byte[] arr) throws IOException {
+		byte[] a = new byte[arr.length];
+		for (int i = 0; i < arr.length; i++) {
+			Byte b = arr[i];
+			if (b == null) {
+				throw new RuntimeException("Cannot write a Byte[] array that contains a null value");
+			}
+			else {
+				a[i] = b;
+			}
+		}
+		dataOut.write(a);
+	}
+
+	@SuppressWarnings("unused")
 	private static void writeFile() {
 		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
 			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
 
 			Random random = new Random(3);
-			writeRandomSegment(dataOut, random, 100);
-			dataOut.write(ARRAY_A);
-			writeRandomSegment(dataOut, random, 37);
-			dataOut.write(ARRAY_A);
-			dataOut.write(ARRAY_A);
+			writeRandomSegment(dataOut, random, 23);
+			write(dataOut, A);
+			write(dataOut, B1);
+			write(dataOut, B2);
+			write(dataOut, C);
+			writeRandomSegment(dataOut, random, 12);
+			write(dataOut, C);
+			write(dataOut, C);
+			writeRandomSegment(dataOut, random, 12);
+			write(dataOut, B1);
+			write(dataOut, C);
+			write(dataOut, A);
+			writeRandomSegment(dataOut, random, 2);
+			write(dataOut, B2);
+			write(dataOut, B1);
+			writeRandomSegment(dataOut, random, 3);
+			write(dataOut, B2);
 			writeRandomSegment(dataOut, random, 120);
+			write(dataOut, A);
 		}
 		catch(Exception e) {
 			e.printStackTrace();

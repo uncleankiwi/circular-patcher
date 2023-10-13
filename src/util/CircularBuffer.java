@@ -6,8 +6,10 @@ public class CircularBuffer {
 	private Node tail;
 	private final int maxSize;
 	private int size;		//size of buffer that's actually filled
+	private long offset;
 
 	public CircularBuffer(int maxSize) {
+		offset = -1;
 		size = 0;
 		this.maxSize = maxSize;
 		Node last = null;
@@ -34,6 +36,7 @@ public class CircularBuffer {
 	If it isn't empty, write to tail's next. If the new tail is head, set head as head's next.
 	 */
 	public void push(byte b) {
+		offset++;
 		if (size < maxSize) {
 			size++;
 		}
@@ -51,6 +54,11 @@ public class CircularBuffer {
 		}
 	}
 
+	public long getOffset() {
+		//the stored offset is based on the end of the buffer, so we subtract the current buffer size
+		//to obtain the offset of the beginning
+		return offset - size + 1;
+	}
 
 	/*
 	Gives the trie in the bulkQuery the contents in the window until no more are requested
