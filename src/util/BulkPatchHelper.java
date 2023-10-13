@@ -14,7 +14,7 @@ public class BulkPatchHelper {
 	private BulkQuery bulkQuery;
 
 	@SuppressWarnings("InfiniteLoopStatement")
-	public void run() {
+	public void executeFind() {
 		if (bulkQuery.getSequences().size() == 0) {
 			throw new RuntimeException("No sequences to search");
 		}
@@ -23,7 +23,7 @@ public class BulkPatchHelper {
 		}
 
 		try(FileInputStream fileInStream = new FileInputStream(fileIn);
-		DataInputStream dataInStream = new DataInputStream(fileInStream)){
+		DataInputStream dataIn = new DataInputStream(fileInStream)){
 			int maxQueryLength = 0;
 			for (Sequence sequence : bulkQuery.getSequences()) {
 				if (sequence.getQuery().length > maxQueryLength) {
@@ -34,11 +34,63 @@ public class BulkPatchHelper {
 			CircularBuffer buffer = new CircularBuffer(maxQueryLength);
 			try {
 				while(true) {
-					buffer.push(dataInStream.readByte());
+					buffer.push(dataIn.readByte());
 					buffer.bulkQueryWithWildcards(bulkQuery);
 				}
 			}
 			catch (EOFException e){
+				System.out.println("End of file");
+			}
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	@SuppressWarnings("InfiniteLoopStatement")
+	public void executeReplace() {
+		if (bulkQuery.getSequences().size() == 0) {
+			throw new RuntimeException("No sequences to search");
+		}
+		if (fileIn == null) {
+			throw new RuntimeException("No input file specified");
+		}
+		if (fileOut == null) {
+			throw new RuntimeException("No output file specified");
+		}
+
+		try(FileInputStream fileInStream = new FileInputStream(fileIn);
+			DataInputStream dataIn = new DataInputStream(fileInStream);
+			FileOutputStream fileOutStream = new FileOutputStream(fileOut);
+			DataOutputStream dataOut = new DataOutputStream(fileOutStream)){
+			int maxQueryLength = 0;
+			for (Sequence sequence : bulkQuery.getSequences()) {
+				if (sequence.getQuery().length > maxQueryLength) {
+					maxQueryLength = sequence.getQuery().length;
+				}
+			}
+
+			CircularBuffer buffer = new CircularBuffer(maxQueryLength);
+			try {
+				while(true) {
+					Byte b = buffer.pushAndReturn(dataIn.readByte());
+					if (b != null) {
+						dataOut.writeByte(b);
+					}
+					Sequence sequence = buffer.bulkReplaceWithWildcards(bulkQuery);
+					//a result was found that has to be replaced
+					if (sequence != null) {
+						//write the replacement sequence
+						dataOut.write(sequence.getReplace());
+						//purge the query sequence from the buffer
+						buffer.purge(sequence.length());
+					}
+				}
+			}
+			catch (EOFException e){
+				dataOut.write(buffer.contents());
 				System.out.println("End of file");
 			}
 
@@ -57,6 +109,17 @@ public class BulkPatchHelper {
 			bulkQuery = new BulkQuery();
 		}
 		bulkQuery.add(description, query);
+	}
+
+	public void addReplace(String description, String query, String replace) {
+		addReplace(description, Converter.wildcardStringToData(query), Converter.stringToData(replace));
+	}
+
+	public void addReplace(String description, Byte[] query, byte[] replace) {
+		if (bulkQuery == null) {
+			bulkQuery = new BulkQuery();
+		}
+		bulkQuery.add(description, query, replace);
 	}
 
 	public void setFileIn(File file) {

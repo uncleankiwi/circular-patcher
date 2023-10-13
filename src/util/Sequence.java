@@ -7,11 +7,17 @@ public class Sequence {
 	private final String description;
 	private final Byte[] query;
 	private final List<Result> results;
+	private final byte[] replace;
 
 	public Sequence(String description, Byte[] query) {
+		this(description, query, null);
+	}
+
+	public Sequence(String description, Byte[] query, byte[] replace) {
 		this.description = description;
 		this.query = query;
 		this.results = new ArrayList<>();
+		this.replace = replace;
 	}
 
 	public Byte[] getQuery() {
@@ -20,6 +26,10 @@ public class Sequence {
 
 	public List<Result> getResults() {
 		return results;
+	}
+
+	public byte[] getReplace() {
+		return replace;
 	}
 
 	int length() {

@@ -31,12 +31,19 @@ class Trie {
 		//marking each leaf node in the result set as seen
 		for (Trie child : resultSet) {
 			if (child.sequence != null) {
-				//todo entire sequence + offset number is put in. could modify this.
 				child.sequence.getResults().add(new Result(bulkQuery.getOffset(), bulkQuery.buffer.contents()));
 			}
 		}
 
 		return resultSet;
+	}
+
+	boolean hasSequence() {
+		return sequence != null;
+	}
+
+	Sequence getSequence() {
+		return sequence;
 	}
 
 	//insert the given Sequence's sequence as a child, starting at the offset element
