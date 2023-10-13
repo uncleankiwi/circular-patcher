@@ -54,10 +54,54 @@ public class CircularBuffer {
 		}
 	}
 
+	/*
+	An alternate version of push.
+	When the buffer written to while it is already full, the oldest byte is returned.
+	When not full, pushAndReturn() will return a null.
+	 */
+	public Byte pushAndReturn(byte b) {
+		Byte result = null;
+		if (size < maxSize) {
+			size++;
+		}
+		if (head == null) {
+			head = first;
+			tail = first;
+			first.b = b;
+		}
+		else {
+			tail = tail.next;
+			if (tail == head) {
+				result = head.b;
+				head = head.next;
+			}
+			tail.b = b;
+		}
+		return result;
+	}
+
 	public long getOffset() {
 		//the stored offset is based on the end of the buffer, so we subtract the current buffer size
 		//to obtain the offset of the beginning
 		return offset - size + 1;
+	}
+
+	/*
+	Removes the first n bytes from the buffer.
+	If n is equal to or greater than the buffer size, clear() will empty out everything.
+	 */
+	public void purge(int n) {
+		n = Math.min(size, n);
+		if (n == size) {
+			clear();
+		}
+		else {
+			for (int i = 1; i <= n; i++) {
+				head = head.next;
+			}
+			size = size - n;
+		}
+
 	}
 
 	/*
@@ -73,6 +117,27 @@ public class CircularBuffer {
 			n = n.next;
 		}
 	}
+
+	/*
+	If any sequence in the BulkQuery matches, it returns that sequence.
+	BulkPatchHelper will then purge() the 'query' sequence from the buffer
+	and write the 'replace' sequence.
+	 */
+	public Sequence bulkReplaceWithWildcards(BulkQuery bulkQuery) {
+		bulkQuery.setBuffer(this);
+		Node n = head;
+		bulkQuery.reset();
+		while (bulkQuery.hasNext()) {
+			Sequence sequence = bulkQuery.pushReplace(n.b);
+			if (sequence != null) {
+				return sequence;
+			}
+			n = n.next;
+		}
+		return null;
+	}
+
+
 
 	//copy whatever was in the buffer into a byte[]
 	public byte[] contents() {

@@ -59,6 +59,27 @@ class BulkQuery {
 		nextSet.clear();
 	}
 
+	//a 'replace' version of pushQuery.
+	//Returns the first Sequence that matches
+	//If there are multiple matches, it returns any of them
+	public Sequence pushReplace(byte b) {
+		for (Trie trie : currentSet) {
+			Set<Trie> s = trie.pushQuery(b);
+			//looking for a node with a sequence stored in it
+			for (Trie t : s) {
+				if (t.hasSequence()) {
+					return t.getSequence();
+				}
+			}
+			nextSet.addAll(s);
+		}
+		Set<Trie> temp = currentSet;
+		currentSet = nextSet;
+		nextSet = temp;
+		nextSet.clear();
+		return null;
+	}
+
 	//resets the search, and sets the scope back to the heads of the Tries stored
 	public void reset() {
 		currentSet.clear();
@@ -71,6 +92,12 @@ class BulkQuery {
 
 	void add(String description, Byte[] query) {
 		Sequence sequence = new Sequence(description, query);
+		sequences.add(sequence);
+		head.populate(sequence, 0);
+	}
+
+	void add(String description, Byte[] query, byte[] replace) {
+		Sequence sequence = new Sequence(description, query, replace);
 		sequences.add(sequence);
 		head.populate(sequence, 0);
 	}
