@@ -63,7 +63,7 @@ public class BulkPatchHelper {
 
 		try(FileInputStream fileInStream = new FileInputStream(fileIn);
 			DataInputStream dataIn = new DataInputStream(fileInStream);
-			FileOutputStream fileOutStream = new FileOutputStream(fileOut);
+			FileOutputStream fileOutStream = new FileOutputStream(fileOut, false);
 			DataOutputStream dataOut = new DataOutputStream(fileOutStream)){
 			int maxQueryLength = 0;
 			for (Sequence sequence : bulkQuery.getSequences()) {

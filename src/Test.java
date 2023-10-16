@@ -28,7 +28,7 @@ public class Test {
 
 	@SuppressWarnings("unused")
 	private static void bulkFindTester(File f) {
-
+		System.out.println("Searching file, length " + f.length());
 		BulkPatchHelper bulkPatchHelper = new BulkPatchHelper();
 		bulkPatchHelper.setFileIn(f);
 		bulkPatchHelper.addQuery("a", A);
@@ -44,6 +44,7 @@ public class Test {
 
 	@SuppressWarnings("SameParameterValue")
 	private static void bulkReplaceTester(File fIn, File fOut) {
+		System.out.println("Replacing file, length " + fIn.length());
 		BulkPatchHelper bulkPatchHelper = new BulkPatchHelper();
 		bulkPatchHelper.setFileIn(fIn);
 		bulkPatchHelper.setFileOut(fOut);

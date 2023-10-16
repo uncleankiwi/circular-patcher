@@ -60,6 +60,7 @@ public class CircularBuffer {
 	When not full, pushAndReturn() will return a null.
 	 */
 	public Byte pushAndReturn(byte b) {
+		offset++;
 		Byte result = null;
 		if (size < maxSize) {
 			size++;
@@ -99,6 +100,7 @@ public class CircularBuffer {
 			for (int i = 1; i <= n; i++) {
 				head = head.next;
 			}
+			offset += n;
 			size = size - n;
 		}
 
@@ -154,6 +156,7 @@ public class CircularBuffer {
 	//to be used when replacing the search query match with something else.
 	@SuppressWarnings("unused")
 	public void clear() {
+		offset += size;
 		size = 0;
 		head = null;
 		tail = null;
