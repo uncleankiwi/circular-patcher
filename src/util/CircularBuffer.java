@@ -7,6 +7,7 @@ public class CircularBuffer {
 	private final int maxSize;
 	private int size;		//size of buffer that's actually filled
 	private long offset;
+	//todo address edge case: make sure sequences shorter than buffer length and located near EOF aren't missed
 
 	public CircularBuffer(int maxSize) {
 		offset = -1;
@@ -72,7 +73,7 @@ public class CircularBuffer {
 		}
 		else {
 			tail = tail.next;
-			if (tail == head) {
+			if (tail == head && size == maxSize) {
 				result = head.b;
 				head = head.next;
 			}
@@ -134,7 +135,12 @@ public class CircularBuffer {
 			if (sequence != null) {
 				return sequence;
 			}
-			n = n.next;
+			if (n == tail) {
+				break;
+			}
+			else {
+				n = n.next;
+			}
 		}
 		return null;
 	}

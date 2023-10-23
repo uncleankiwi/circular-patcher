@@ -183,4 +183,40 @@ public class Converter {
 		}
 		return builder.toString();
 	}
+
+	//a version of dataToString(byte[]) that should be marginally easier to read
+	@SuppressWarnings("GrazieInspection")
+	public static String prettyPrintDataToString(byte[] data, int printWidth) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < data.length; i++)
+		{
+			//print row offset before the first number of the row
+			if (i % printWidth == 0) {
+				builder.append("\n")
+						.append(i)
+						.append("\t\t");
+			}
+			//insert a space before this number since this isn't the first number of the row
+			else {
+				builder.append(' ');
+			}
+			char right = getHalfBytetoHexMap().get((byte) (data[i] & 15));
+
+			/* Note that we cannot simply use data[i] >> 4 to get the left part.
+			Byte data type cannot be bit-shifted, so it gets implicitly cast into int.
+			However, when the value of the byte is ff (or -1), that get casted into
+			-1 in int, which is ff ff ff ff.
+			When the bit shift is performed with that, we end up with 00 ff ff ff...
+			which is cast into byte, resulting in ff ff (-1) again.
+			That will fetch a null from the map (because there's no such key),
+			and which will then cause a null pointer exception to be thrown when
+			attempting to assign it to the char variable.
+			 */
+			char left = getHalfBytetoHexMap().get((byte) (data[i] >> 4 & 15));
+			builder.append(left)
+					.append(right);
+
+		}
+		return builder.toString();
+	}
 }

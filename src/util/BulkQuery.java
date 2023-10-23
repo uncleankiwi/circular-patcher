@@ -82,6 +82,7 @@ class BulkQuery {
 
 	//resets the search, and sets the scope back to the heads of the Tries stored
 	public void reset() {
+		nextSet.clear();
 		currentSet.clear();
 		currentSet.add(head);
 	}

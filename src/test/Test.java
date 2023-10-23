@@ -1,3 +1,5 @@
+package test;
+
 import util.BulkPatchHelper;
 import util.Converter;
 
@@ -17,16 +19,18 @@ public class Test {
 	private static final String E = "00 00 00";
 
 	public static void main(String[] args) {
-//		writeFile();
-		bulkFindTester(FILE);
+		writeFile2();
+//		bulkFindTester(FILE);
+		debugReadAll(FILE);
 		System.out.println("===========================");
-		BulkPatchHelper.clearFile(FILE_AFTER);
+//		BulkPatchHelper.clearFile(FILE_AFTER);
 		bulkReplaceTester(FILE, FILE_AFTER);
 		System.out.println("===========================");
 		bulkFindTester(FILE_AFTER);
+		debugReadAll(FILE_AFTER);
 	}
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"unused", "SameParameterValue"})
 	private static void bulkFindTester(File f) {
 		System.out.println("Searching file, length " + f.length());
 		BulkPatchHelper bulkPatchHelper = new BulkPatchHelper();
@@ -74,8 +78,8 @@ public class Test {
 	}
 
 	@SuppressWarnings("unused")
-	private static void writeFile() {
-		try(FileOutputStream fileOut = new FileOutputStream(FILE, true);
+	private static void writeFile() {	//this bugs out replace tester
+		try(FileOutputStream fileOut = new FileOutputStream(FILE, false);
 			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
 
 			Random random = new Random(3);
@@ -98,6 +102,49 @@ public class Test {
 			write(dataOut, B2);
 			writeRandomSegment(dataOut, random, 120);
 			write(dataOut, A);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private static void writeFile2() {
+		try(FileOutputStream fileOut = new FileOutputStream(FILE, false);
+			BufferedOutputStream dataOut = new BufferedOutputStream(fileOut)){
+
+			Random random = new Random(3);
+			write(dataOut, A);
+			write(dataOut, B1);
+			write(dataOut, B2);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	Read the entire file.
+	 */
+	@SuppressWarnings({"unused", "InfiniteLoopStatement"})
+	private static void debugReadAll(File file) {
+		try(FileInputStream fileIn = new FileInputStream(file);
+			DataInputStream dataIn = new DataInputStream(fileIn)){
+			try {
+				while(true) {
+					long length = file.length();
+					if (length > Integer.MAX_VALUE) {
+						throw new RuntimeException("File of length " + length + " is too large to be read");
+					}
+					byte[] output = new byte[(int) length];
+					dataIn.readFully(output);
+					System.out.println(Converter.prettyPrintDataToString(output, 10));
+				}
+			}
+			catch (EOFException e){
+				System.out.println("EOF");
+			}
+
 		}
 		catch(Exception e) {
 			e.printStackTrace();

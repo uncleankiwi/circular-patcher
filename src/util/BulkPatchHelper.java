@@ -24,14 +24,16 @@ public class BulkPatchHelper {
 
 		try(FileInputStream fileInStream = new FileInputStream(fileIn);
 		DataInputStream dataIn = new DataInputStream(fileInStream)){
+
+			//calculate buffer size
 			int maxQueryLength = 0;
 			for (Sequence sequence : bulkQuery.getSequences()) {
 				if (sequence.getQuery().length > maxQueryLength) {
 					maxQueryLength = sequence.getQuery().length;
 				}
 			}
-
 			CircularBuffer buffer = new CircularBuffer(maxQueryLength);
+
 			try {
 				while(true) {
 					buffer.push(dataIn.readByte());
@@ -65,14 +67,16 @@ public class BulkPatchHelper {
 			DataInputStream dataIn = new DataInputStream(fileInStream);
 			FileOutputStream fileOutStream = new FileOutputStream(fileOut, false);
 			DataOutputStream dataOut = new DataOutputStream(fileOutStream)){
+
+			//calculate buffer size
 			int maxQueryLength = 0;
 			for (Sequence sequence : bulkQuery.getSequences()) {
 				if (sequence.getQuery().length > maxQueryLength) {
 					maxQueryLength = sequence.getQuery().length;
 				}
 			}
-
 			CircularBuffer buffer = new CircularBuffer(maxQueryLength);
+
 			try {
 				while(true) {
 					Byte b = buffer.pushAndReturn(dataIn.readByte());
