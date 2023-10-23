@@ -94,7 +94,17 @@ public class BulkPatchHelper {
 				}
 			}
 			catch (EOFException e){
-				dataOut.write(buffer.contents());
+				//search whatever remains in the buffer
+				while (buffer.size() > 0) {
+					Sequence sequence = buffer.bulkReplaceWithWildcards(bulkQuery);
+					if (sequence != null) {
+						dataOut.write(sequence.getReplace());
+						buffer.purge(sequence.length());
+					}
+					else {
+						dataOut.write(buffer.pop());
+					}
+				}
 				System.out.println("End of file");
 			}
 

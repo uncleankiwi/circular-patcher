@@ -7,7 +7,6 @@ public class CircularBuffer {
 	private final int maxSize;
 	private int size;		//size of buffer that's actually filled
 	private long offset;
-	//todo address edge case: make sure sequences shorter than buffer length and located near EOF aren't missed
 
 	public CircularBuffer(int maxSize) {
 		offset = -1;
@@ -98,13 +97,32 @@ public class CircularBuffer {
 			clear();
 		}
 		else {
-			for (int i = 1; i <= n; i++) {
+			for (int i = 1; i <= size - n; i++) {
 				head = head.next;
 			}
 			offset += n;
 			size = size - n;
 		}
 
+	}
+
+	/*
+	Removes one byte from the head and returns it.
+	Used for checking the bytes left in the buffer for matches after the file has been fully read.
+	 */
+	public byte pop() {
+		if (size <= 0) {
+			throw new RuntimeException("Cannot pop a byte because this buffer is already empty");
+		}
+		byte b = head.b;
+		if (size == 1) {
+			clear();
+		}
+		else {
+			head = head.next;
+			size--;
+		}
+		return b;
 	}
 
 	/*
@@ -171,6 +189,10 @@ public class CircularBuffer {
 	@SuppressWarnings("unused")
 	public int maxSize() {
 		return maxSize;
+	}
+
+	public int size() {
+		return size;
 	}
 
 	private static class Node {
