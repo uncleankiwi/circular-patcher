@@ -1,6 +1,7 @@
 package util;
 
 import java.io.*;
+import java.util.Set;
 
 /*
 Holds:
@@ -157,6 +158,10 @@ public class BulkPatchHelper {
 
 	public void printResults() {
 		System.out.println(bulkQuery);
+	}
+
+	public Set<Sequence> getSequences() {
+		return bulkQuery.getSequences();
 	}
 }
 
