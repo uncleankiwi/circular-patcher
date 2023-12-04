@@ -3,6 +3,8 @@ package util;
 import java.io.*;
 import java.util.Set;
 
+import static util.Converter.byteToByte;
+
 /*
 Holds:
 	- input file and output file
@@ -16,7 +18,7 @@ public class BulkPatchHelper {
 
 	@SuppressWarnings("InfiniteLoopStatement")
 	public void executeFind() {
-		if (bulkQuery.getSequences().size() == 0) {
+		if (bulkQuery == null || bulkQuery.getSequences().size() == 0) {
 			throw new RuntimeException("No sequences to search");
 		}
 		if (fileIn == null) {
@@ -54,7 +56,7 @@ public class BulkPatchHelper {
 
 	@SuppressWarnings("InfiniteLoopStatement")
 	public void executeReplace() {
-		if (bulkQuery.getSequences().size() == 0) {
+		if (bulkQuery == null || bulkQuery.getSequences().size() == 0) {
 			throw new RuntimeException("No sequences to search");
 		}
 		if (fileIn == null) {
@@ -87,10 +89,7 @@ public class BulkPatchHelper {
 					Sequence sequence = buffer.bulkReplaceWithWildcards(bulkQuery);
 					//a result was found that has to be replaced
 					if (sequence != null) {
-						//write the replacement sequence
-						dataOut.write(sequence.getReplace());
-						//purge the query sequence from the buffer
-						buffer.purge(sequence.length());
+						writeReplaceWithWildcards(dataOut, buffer, sequence);
 					}
 				}
 			}
@@ -99,8 +98,7 @@ public class BulkPatchHelper {
 				while (buffer.size() > 0) {
 					Sequence sequence = buffer.bulkReplaceWithWildcards(bulkQuery);
 					if (sequence != null) {
-						dataOut.write(sequence.getReplace());
-						buffer.purge(sequence.length());
+						writeReplaceWithWildcards(dataOut, buffer, sequence);
 					}
 					else {
 						dataOut.write(buffer.pop());
@@ -115,6 +113,33 @@ public class BulkPatchHelper {
 		}
 	}
 
+	//write the replacement sequence.
+	//if there are any null bytes (and replacement/query sequences have the same length, use the output's bytes)
+	private void writeReplaceWithWildcards(DataOutputStream dataOut, CircularBuffer buffer, Sequence sequence)
+			throws IOException {
+		//if the replacement sequence and query are of the same length,
+		//replace it byte by byte. When encountering a null Byte, use the original's.
+		Byte[] query = sequence.getQuery();
+		Byte[] replace = sequence.getReplace();
+		if (query.length == replace.length) {
+			byte[] bufferContents = buffer.contents();
+			for (int i = 0; i < sequence.length(); i++) {
+				if (replace[i] == null) {
+					dataOut.writeByte(bufferContents[i]);
+				}
+				else {
+					dataOut.writeByte(replace[i]);
+				}
+			}
+		}
+		else {
+			//write the replacement sequence
+			dataOut.write(byteToByte(sequence.getReplace()));
+		}
+		//purge the query sequence from the buffer
+		buffer.purge(sequence.length());
+	}
+
 	public void addQuery(String description, String query) {
 		addQuery(description, Converter.wildcardStringToData(query));
 	}
@@ -127,10 +152,10 @@ public class BulkPatchHelper {
 	}
 
 	public void addReplace(String description, String query, String replace) {
-		addReplace(description, Converter.wildcardStringToData(query), Converter.stringToData(replace));
+		addReplace(description, Converter.wildcardStringToData(query), Converter.wildcardStringToData(replace));
 	}
 
-	public void addReplace(String description, Byte[] query, byte[] replace) {
+	public void addReplace(String description, Byte[] query, Byte[] replace) {
 		if (bulkQuery == null) {
 			bulkQuery = new BulkQuery();
 		}
@@ -160,6 +185,7 @@ public class BulkPatchHelper {
 		System.out.println(bulkQuery);
 	}
 
+	@SuppressWarnings("unused")
 	public Set<Sequence> getSequences() {
 		return bulkQuery.getSequences();
 	}

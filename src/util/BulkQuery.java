@@ -97,7 +97,7 @@ class BulkQuery {
 		head.populate(sequence, 0);
 	}
 
-	void add(String description, Byte[] query, byte[] replace) {
+	void add(String description, Byte[] query, Byte[] replace) {
 		Sequence sequence = new Sequence(description, query, replace);
 		sequences.add(sequence);
 		head.populate(sequence, 0);

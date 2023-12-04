@@ -45,6 +45,19 @@ public class Converter {
 		return halfByteToHexMap;
 	}
 
+	public static byte[] byteToByte(Byte[] arr) {
+		byte[] output = new byte[arr.length];
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i] == null) {
+				throw new RuntimeException("Cannot convert a null Byte into byte");
+			}
+			else {
+				output[i] = arr[i];
+			}
+		}
+		return output;
+	}
+
 	public static byte[] stringToData(String bitString) {
 		char[] bitStringArr = bitString
 				.toLowerCase()
