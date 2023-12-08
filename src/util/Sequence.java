@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Sequence {
-	private final String description;
-	private final Byte[] query;
-	private final List<Result> results;
-	private final Byte[] replace;
+	protected final String description;
+	protected Byte[] query;
+	protected final List<Result> results;
+	protected Byte[] replace;
 
 	public Sequence(String description, Byte[] query) {
 		this(description, query, null);

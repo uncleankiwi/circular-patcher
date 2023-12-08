@@ -151,6 +151,25 @@ public class BulkPatchHelper {
 		bulkQuery.add(description, query);
 	}
 
+	@SuppressWarnings({"SpellCheckingInspection", "unused"})
+	public void addQuery(String description, Byte[] queryStart, int minMidsegment, int maxMidsegment,
+						 Byte[] queryEnd) {
+		if (bulkQuery == null) {
+			bulkQuery = new BulkQuery();
+		}
+		bulkQuery.add(description, queryStart, minMidsegment, maxMidsegment, queryEnd);
+	}
+
+	@SuppressWarnings({"SpellCheckingInspection", "unused"})
+	public void addQuery(String description, String queryStart, int minMidsegment, int maxMidsegment,
+						 String queryEnd) {
+		if (bulkQuery == null) {
+			bulkQuery = new BulkQuery();
+		}
+		bulkQuery.add(description, Converter.wildcardStringToData(queryStart),
+				minMidsegment, maxMidsegment, Converter.wildcardStringToData(queryEnd));
+	}
+
 	public void addReplace(String description, String query, String replace) {
 		addReplace(description, Converter.wildcardStringToData(query), Converter.wildcardStringToData(replace));
 	}
@@ -160,6 +179,16 @@ public class BulkPatchHelper {
 			bulkQuery = new BulkQuery();
 		}
 		bulkQuery.add(description, query, replace);
+	}
+
+	@SuppressWarnings({"SpellCheckingInspection", "unused"})
+	public void addReplace(String description, Byte[] queryStart, int minMidsegment, int maxMidsegment,
+						   Byte[] queryEnd, Byte[] replaceStart, Byte[] replaceEnd) {
+		if (bulkQuery == null) {
+			bulkQuery = new BulkQuery();
+		}
+		bulkQuery.add(description, queryStart, minMidsegment, maxMidsegment, queryEnd,
+				replaceStart, replaceEnd);
 	}
 
 	public void setFileIn(File file) {

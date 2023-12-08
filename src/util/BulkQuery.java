@@ -103,6 +103,30 @@ class BulkQuery {
 		head.populate(sequence, 0);
 	}
 
+	@SuppressWarnings("SpellCheckingInspection")
+	void add(String description, Byte[] queryStart, int minMidsegment, int maxMidsegment,
+							 Byte[] queryEnd) {
+		VariableSequence sequence = new VariableSequence(description, queryStart, minMidsegment, maxMidsegment, queryEnd);
+		sequences.add(sequence);
+		for (int i = 0; i <= sequence.getMaxIndex(); i++) {
+			sequence.setIndex(i);
+			head.populate(sequence, 0);
+		}
+
+	}
+
+	@SuppressWarnings("SpellCheckingInspection")
+	void add(String description, Byte[] queryStart, int minMidsegment, int maxMidsegment,
+							 Byte[] queryEnd, Byte[] replaceStart, Byte[] replaceEnd) {
+		VariableSequence sequence = new VariableSequence(description, queryStart, minMidsegment, maxMidsegment, queryEnd,
+				replaceStart, replaceEnd);
+		sequences.add(sequence);
+		for (int i = 0; i <= sequence.getMaxIndex(); i++) {
+			sequence.setIndex(i);
+			head.populate(sequence, 0);
+		}
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder("Bytes searched: " + getOffset());
