@@ -45,6 +45,7 @@ public class Converter {
 		return halfByteToHexMap;
 	}
 
+	//Converts Byte[] into byte[]
 	public static byte[] byteToByte(Byte[] arr) {
 		byte[] output = new byte[arr.length];
 		for (int i = 0; i < arr.length; i++) {

@@ -97,7 +97,7 @@ public class CircularBuffer {
 			clear();
 		}
 		else {
-			for (int i = 1; i <= size - n; i++) {
+			for (int i = 1; i <= n; i++) {
 				head = head.next;
 			}
 			offset += n;
